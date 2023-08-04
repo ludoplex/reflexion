@@ -32,20 +32,20 @@ def validate_py_results(log_path: str):
             try:
                 def handler(signum, frame):
                     nonlocal i
-                    raise Exception("timeout on test case" + str(i))
+                    raise Exception(f"timeout on test case{str(i)}")
 
                 signal.signal(signal.SIGALRM, handler)
                 signal.alarm(TIMEOUT)
-                exec(code, globals()) 
+                exec(code, globals())
                 signal.alarm(0)
                 green_text_out = green_text(f"passes {num_tests}/{num_tests} test cases")
                 print(f"Test {i}: {green_text_out}")
                 num_success += 1
             except Exception:
-                red_text_out = red_text(f"failed but should have passed!")
+                red_text_out = red_text("failed but should have passed!")
                 print(f"Test {i}: {red_text_out}")
         else:
-            red_text_out = red_text(f"failed!")
+            red_text_out = red_text("failed!")
             print(f"Test {i}: {red_text_out}")
     print(f"Summary: {num_success}/{len(data)} tests passed")
     print(f"Acc: {round(num_success/len(data), 3)} tests passed")

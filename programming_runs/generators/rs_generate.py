@@ -183,7 +183,8 @@ class RsGenerator(Generator):
             max_num_tests: int = 5
     ) -> List[str]:
         def parse_tests(tests: str) -> List[str]:
-            return [test + ";" for test in tests.split(";")]
+            return [f"{test};" for test in tests.split(";")]
+
         """
         Generates tests for a function using a refinement technique with the number
         of specified commmittee members.
@@ -201,6 +202,3 @@ class RsGenerator(Generator):
         )
 
 
-if __name__ == "__main__":
-    # for testing
-    pass

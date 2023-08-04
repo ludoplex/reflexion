@@ -22,8 +22,7 @@ with open('./challenge_few_shot_examples.txt', 'r') as f:
 
 def llm(prompt, stop=["\n"]):
     try:
-        cur_try = 0
-        while cur_try < 6:
+        for cur_try in range(6):
             response = openai.Completion.create(
               model="text-davinci-002",
               prompt=prompt,
@@ -38,7 +37,6 @@ def llm(prompt, stop=["\n"]):
             # dumb way to do this
             if len(text.strip()) >= 5:
                 return response["choices"][0]["text"]
-            cur_try += 1
         return ""
     except Exception as e:
         print(prompt)
@@ -62,10 +60,9 @@ def alfworld_run(env, base_prompt, memory: List[str], to_print=True, ob='') -> T
     if to_print:
         print(ob)
         sys.stdout.flush()
-    cur_step = 0
-    while cur_step < 50:
+    for _ in range(50):
         # action = llm(init_prompt + prompt, stop=['\n']).strip()
-        action = llm(str(env_history) + ">", stop=['\n']).strip()
+        action = llm(f"{str(env_history)}>", stop=['\n']).strip()
         env_history.add("action", action)
         observation, reward, done, info = env.step([action])
         observation, reward, done = process_ob(observation[0]), info['won'][0], done[0]
@@ -80,7 +77,6 @@ def alfworld_run(env, base_prompt, memory: List[str], to_print=True, ob='') -> T
             return env_history, True
         elif env_history.check_is_exhausted():
             return env_history, False
-        cur_step += 1
     return env_history, False
 
 PREFIXES = {
@@ -130,7 +126,7 @@ def run_trial(
                 wf.write(f'\n#####\n\nEnvironment #{z}: Success\n\n#####\n')
             continue
 
-        for i, (k, v) in enumerate(PREFIXES.items()):
+        for k, v in PREFIXES.items():
             if name.startswith(k):
                 base_prompt = 'Interact with a household to solve a task. Here are two examples.\n' + d[f'react_{v}_1'] + d[f'react_{v}_0']
                 final_env_history, is_success = alfworld_run(env, base_prompt, env_config["memory"] if use_memory else [], to_print=True, ob=ob)

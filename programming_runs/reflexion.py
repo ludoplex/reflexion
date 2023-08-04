@@ -78,9 +78,12 @@ def run_reflexion(
 
                 # if solved, check if it passes the real tests, exit early
                 if is_passing or cur_iter == max_iters - 1:
-                    is_passing = exe.evaluate(
-                        item["entry_point"], cur_func_impl, item["test"], timeout=10)
-                    if is_passing:
+                    if is_passing := exe.evaluate(
+                        item["entry_point"],
+                        cur_func_impl,
+                        item["test"],
+                        timeout=10,
+                    ):
                         item["solution"] = cur_func_impl
                         is_solved = True
                         num_success += 1

@@ -18,7 +18,7 @@ def _generate_reflection_query(log_str: str, memory: List[str]) -> str:
 
 Instruction: {scenario}"""
 
-    if len(memory) > 0:
+    if memory:
         query += '\n\nPlans from past attempts:\n'
         for i, m in enumerate(memory):
             query += f'Trial #{i}: {m}\n'

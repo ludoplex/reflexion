@@ -103,10 +103,7 @@ class RsExecutor(Executor):
             os.system(f"rm -rf {tmp_dir}")
             state = tuple([False] * len(tests))
 
-            err_str = ""
-            for err in errs:
-                err_str += f"\n{err}"
-
+            err_str = "".join(f"\n{err}" for err in errs)
             return ExecuteResult(False, err_str, state)
 
         # Run the tests and collect the results

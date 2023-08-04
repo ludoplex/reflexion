@@ -14,8 +14,7 @@ def make_printv(verbose: bool):
         if verbose:
             kwargs["flush"] = True
             print(*args, **kwargs)
-        else:
-            pass
+
     return print_v
 
 
@@ -50,12 +49,11 @@ def read_jsonl_gz(path: str) -> List[dict]:
 # before.
 def enumerate_resume(dataset, results_path):
     if not os.path.exists(results_path):
-        for i, item in enumerate(dataset):
-            yield i, item
+        yield from enumerate(dataset)
     else:
         count = 0
         with jsonlines.open(results_path) as reader:
-            for item in reader:
+            for _ in reader:
                 count += 1
 
         for i, item in enumerate(dataset):

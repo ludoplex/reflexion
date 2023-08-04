@@ -31,16 +31,17 @@ def validate_rs_results(log_path: str):
             num_tests = count_test_cases(item["test"])
 
             rs_executor = RsExecutor()
-            res = rs_executor.evaluate(item["entry_point"], func_impl, item["test"])   
-            if res:
+            if res := rs_executor.evaluate(
+                item["entry_point"], func_impl, item["test"]
+            ):
                 green_text_out = green_text(f"passes {num_tests}/{num_tests} test cases")
                 print(f"Test {i}: {green_text_out}")
                 num_success += 1
             else:
-                red_text_out = red_text(f"failed but should have passed!")
+                red_text_out = red_text("failed but should have passed!")
                 print(f"Test {i}: {red_text_out}")
         else:
-            red_text_out = red_text(f"failed!")
+            red_text_out = red_text("failed!")
             print(f"Test {i}: {red_text_out}")
     print(f"Summary: {num_success}/{len(data)} tests passed")
     print(f"Acc: {round(num_success/len(data), 3)} tests passed")

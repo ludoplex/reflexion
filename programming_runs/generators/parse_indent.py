@@ -28,8 +28,7 @@ def handle_first_line_indent(func_body: str) -> str:
 
 def handle_entire_body_indent(func_body: str) -> str:
     split = func_body.splitlines()
-    res = "\n".join(["    " + line for line in split])
-    return res
+    return "\n".join([f"    {line}" for line in split])
 
 def parse_indent(func_body: str) -> str:
     """
@@ -45,7 +44,7 @@ def parse_indent(func_body: str) -> str:
         try:
             exec(code)
             return f_body
-        except (IndentationError, SyntaxError):
+        except SyntaxError:
             p_func = handle_first_line_indent if cur_state == 0 else handle_entire_body_indent
             return parse_indent_rec(p_func(func_body), cur_state + 1)
         except Exception as e:
@@ -53,6 +52,7 @@ def parse_indent(func_body: str) -> str:
             # print kind of error
             print(e.__class__.__name__)
             return f_body
+
     return parse_indent_rec(func_body, 0)
 
 # for testing

@@ -3,9 +3,9 @@ from .rs_generate import RsGenerator
 from .generator_types import Generator
 
 def generator_factory(lang: str) -> Generator:
-    if lang == "py" or lang == "python":
+    if lang in {"py", "python"}:
         return PyGenerator()
-    elif lang == "rs" or lang == "rust":
+    elif lang in {"rs", "rust"}:
         return RsGenerator()
     else:
         raise ValueError(f"Invalid language for generator: {lang}")

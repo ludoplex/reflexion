@@ -33,10 +33,7 @@ def write_jsonl(filename: str, data: Iterable[Dict], append: bool = False):
     """
     Writes an iterable of dictionaries to jsonl
     """
-    if append:
-        mode = 'ab'
-    else:
-        mode = 'wb'
+    mode = 'ab' if append else 'wb'
     filename = os.path.expanduser(filename)
     if filename.endswith(".gz"):
         with open(filename, mode) as fp:

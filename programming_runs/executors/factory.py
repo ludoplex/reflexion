@@ -4,17 +4,16 @@ from .executor_types import Executor
 from .leet_executor import LeetExecutor
 
 def executor_factory(lang: str, is_leet: bool = False) -> Executor:
-    if lang == "py" or lang == "python":
-        if is_leet:
-            print("Using LeetCode Python executor")
-            from .leetcode_env.leetcode_env.leetcode_types import ProgrammingLanguage
-            from .leetcode_env.leetcode_env.utils import PySubmissionFormatter, RsSubmissionFormatter
-            return LeetExecutor(ProgrammingLanguage.PYTHON3,
-                                PyExecutor(),
-                                PySubmissionFormatter)
-        else:
+    if lang in {"py", "python"}:
+        if not is_leet:
             return PyExecutor()
-    elif lang == "rs" or lang == "rust":
+        print("Using LeetCode Python executor")
+        from .leetcode_env.leetcode_env.leetcode_types import ProgrammingLanguage
+        from .leetcode_env.leetcode_env.utils import PySubmissionFormatter, RsSubmissionFormatter
+        return LeetExecutor(ProgrammingLanguage.PYTHON3,
+                            PyExecutor(),
+                            PySubmissionFormatter)
+    elif lang in {"rs", "rust"}:
         if is_leet:
             from .leetcode_env.leetcode_env.leetcode_types import ProgrammingLanguage
             from .leetcode_env.leetcode_env.utils import PySubmissionFormatter, RsSubmissionFormatter

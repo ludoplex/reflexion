@@ -41,13 +41,13 @@ class QAEnv(gym.Env):
                 observation = self.explorer.search(argument).strip('\n').strip()
             except Exception as e:
                 print(e)
-                observation = f'Could not find that page, please try again.'
-                    
+                observation = 'Could not find that page, please try again.'
+
         elif action_type == 'Lookup':
             try:
                 observation = self.explorer.lookup(argument).strip('\n').strip()
             except ValueError:
-                observation = f'The last page Searched was not found, so you cannot Lookup a keyword in it. Please try one of the similar pages given.'
+                observation = 'The last page Searched was not found, so you cannot Lookup a keyword in it. Please try one of the similar pages given.'
 
         else:
             observation = 'Invalid Action. Valid Actions are Lookup[<topic>] Search[<topic>] and Finish[<answer>].'
@@ -71,15 +71,10 @@ class QAEnv(gym.Env):
 
 def parse_action(string):
     pattern = r'^(\w+)\[(.+)\]$'
-    match = re.match(pattern, string)
-    
-    if match:
-        action_type = match.group(1)
-        argument = match.group(2)
-        return action_type, argument
-    
-    else:
+    if not (match := re.match(pattern, string)):
         return None, None
+    action_type = match[1]
+    return action_type, match[2]
 
 def normalize_answer(s):
   def remove_articles(text):

@@ -22,8 +22,7 @@ with open("./base_prompt.txt", 'r') as f:
 
 def llm(prompt, stop=["\n"]):
     try:
-        cur_try = 0
-        while cur_try < 6:
+        for cur_try in range(6):
             response = openai.Completion.create(
               model="text-davinci-002",
               prompt=prompt,
@@ -38,7 +37,6 @@ def llm(prompt, stop=["\n"]):
             # dumb way to do this
             if len(text.strip()) >= 5:
                 return response["choices"][0]["text"]
-            cur_try += 1
         return ""
     except Exception as e:
         print(prompt)
@@ -84,60 +82,50 @@ def webshop_text(session, page_type, query_string='', page_num=1, asin='', optio
     html_obj = BeautifulSoup(html, 'html.parser')
     texts = html_obj.findAll(text=True)
     visible_texts = list(filter(tag_visible, texts))
-    # visible_texts = [str(text).strip().strip('\\n') for text in visible_texts]
-    # if page_type == 'end': import pdb; pdb.set_trace()
-    if False:
-        # For `simple` mode, return just [SEP] separators
-        return ' [SEP] '.join(t.strip() for t in visible_texts if t != '\n')
-    else:
-        # Otherwise, return an observation with tags mapped to specific, unique separators
-        observation = ''
-        option_type = ''
-        options = {}
-        asins = []
-        cnt = 0
-        prod_cnt = 0
-        just_prod = 0
-        for t in visible_texts:
-            if t == '\n': continue
-            if t.replace('\n', '').replace('\\n', '').replace(' ', '') == '': continue
+    # Otherwise, return an observation with tags mapped to specific, unique separators
+    observation = ''
+    option_type = ''
+    options = {}
+    asins = []
+    cnt = 0
+    prod_cnt = 0
+    just_prod = 0
+    for t in visible_texts:
+        if t == '\n': continue
+        if t.replace('\n', '').replace('\\n', '').replace(' ', '') == '': continue
             # if t.startswith('Instruction:') and page_type != 'init': continue
             # print(t.parent.name, t)
-            if t.parent.name == 'button':  # button
-                processed_t = f'\n[{t}] '
-            elif t.parent.name == 'label':  # options
-                if f"'{t}'" in url: # type: ignore
-                    processed_t = f'[[{t}]]'
-                    # observation = f'You have clicked {t}.\n' + observation
-                else:
-                    processed_t = f'[{t}]'
-                options[str(t)] = option_type
-                # options[option_type] = options.get(option_type, []) + [str(t)]
-            elif t.parent.get('class') == ["product-link"]: # product asins
-                processed_t = f'\n[{t}] '
-                if prod_cnt >= 3:
-                  processed_t = ''
-                prod_cnt += 1
-                asins.append(str(t))
-                just_prod = 0
-            else: # regular, unclickable text
-                processed_t =  '\n' + str(t) + ' '
-                if cnt < 2 and page_type != 'init': processed_t = ''
-                if just_prod <= 2 and prod_cnt >= 4: processed_t = ''
-                option_type = str(t)
-                cnt += 1
-            just_prod += 1
-            observation += processed_t
-        info = {}
-        if options:
-          info['option_types'] = options
-        if asins:
-          info['asins'] = asins
-        if 'Your score (min 0.0, max 1.0)' in visible_texts:
-          idx = visible_texts.index('Your score (min 0.0, max 1.0)')
-          info['reward'] = float(visible_texts[idx + 1])
-          observation = 'Your score (min 0.0, max 1.0): ' + (visible_texts[idx + 1])
-        return clean_str(observation), info
+        if t.parent.name == 'button':  # button
+            processed_t = f'\n[{t}] '
+        elif t.parent.name == 'label':  # options
+            processed_t = f'[[{t}]]' if f"'{t}'" in url else f'[{t}]'
+            options[str(t)] = option_type
+                        # options[option_type] = options.get(option_type, []) + [str(t)]
+        elif t.parent.get('class') == ["product-link"]: # product asins
+            processed_t = f'\n[{t}] '
+            if prod_cnt >= 3:
+              processed_t = ''
+            prod_cnt += 1
+            asins.append(str(t))
+            just_prod = 0
+        else: # regular, unclickable text
+            processed_t =  '\n' + str(t) + ' '
+            if cnt < 2 and page_type != 'init': processed_t = ''
+            if just_prod <= 2 and prod_cnt >= 4: processed_t = ''
+            option_type = str(t)
+            cnt += 1
+        just_prod += 1
+        observation += processed_t
+    info = {}
+    if options:
+      info['option_types'] = options
+    if asins:
+      info['asins'] = asins
+    if 'Your score (min 0.0, max 1.0)' in visible_texts:
+        idx = visible_texts.index('Your score (min 0.0, max 1.0)')
+        info['reward'] = float(visible_texts[idx + 1])
+        observation = f'Your score (min 0.0, max 1.0): {visible_texts[idx + 1]}'
+    return clean_str(observation), info
 
 class webshopEnv:
     def __init__(self):
@@ -147,7 +135,7 @@ class webshopEnv:
         done = False
         observation_ = None
         if action == 'reset':
-          self.sessions[session] = {'session': session, 'page_type': 'init'}
+            self.sessions[session] = {'session': session, 'page_type': 'init'}
         elif action.startswith('think['):
           observation = 'OK.'
         elif action.startswith('search['):
@@ -182,19 +170,18 @@ class webshopEnv:
                 assert self.sessions[session]['page_type'] == 'item'
                 self.sessions[session]['page_type'] = 'item_sub'
                 self.sessions[session]['subpage'] = button
-            else:
-                if self.sessions[session]['page_type'] == 'search':
-                    assert button in self.sessions[session].get('asins', [])  # must be asins
-                    self.sessions[session]['page_type'] = 'item'
-                    self.sessions[session]['asin'] = button
-                elif self.sessions[session]['page_type'] == 'item':
-                    assert 'option_types' in self.sessions[session]
-                    assert button in self.sessions[session]['option_types'], (button, self.sessions[session]['option_types'])  # must be options
-                    option_type = self.sessions[session]['option_types'][button]
-                    if not 'options' in self.sessions[session]:
-                        self.sessions[session]['options'] = {}
-                    self.sessions[session]['options'][option_type] = button
-                    observation_ = f'You have clicked {button}.'
+            elif self.sessions[session]['page_type'] == 'search':
+                assert button in self.sessions[session].get('asins', [])  # must be asins
+                self.sessions[session]['page_type'] = 'item'
+                self.sessions[session]['asin'] = button
+            elif self.sessions[session]['page_type'] == 'item':
+                assert 'option_types' in self.sessions[session]
+                assert button in self.sessions[session]['option_types'], (button, self.sessions[session]['option_types'])  # must be options
+                option_type = self.sessions[session]['option_types'][button]
+                if 'options' not in self.sessions[session]:
+                    self.sessions[session]['options'] = {}
+                self.sessions[session]['options'][option_type] = button
+                observation_ = f'You have clicked {button}.'
         else:
             assert False
         observation, info = webshop_text(**self.sessions[session])

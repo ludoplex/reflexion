@@ -23,11 +23,11 @@ Trial summary: Correct: {len(correct)}, Incorrect: {len(incorrect)}
 
     log += '------------- BEGIN CORRECT AGENTS -------------\n\n'
     for agent in correct:
-        log += remove_fewshot(agent._build_agent_prompt()) + f'\nCorrect answer: {agent.key}\n\n'
+        log += f'{remove_fewshot(agent._build_agent_prompt())}\nCorrect answer: {agent.key}\n\n'
 
     log += '------------- BEGIN INCORRECT AGENTS -----------\n\n'
     for agent in incorrect:
-        log += remove_fewshot(agent._build_agent_prompt()) + f'\nCorrect answer: {agent.key}\n\n'
+        log += f'{remove_fewshot(agent._build_agent_prompt())}\nCorrect answer: {agent.key}\n\n'
 
     return log
 
@@ -49,15 +49,15 @@ Trial summary: Correct: {len(correct)}, Incorrect: {len(incorrect)}, Halted: {le
 
     log += '------------- BEGIN CORRECT AGENTS -------------\n\n'
     for agent in correct:
-        log += remove_fewshot(agent._build_agent_prompt()) + f'\nCorrect answer: {agent.key}\n\n'
+        log += f'{remove_fewshot(agent._build_agent_prompt())}\nCorrect answer: {agent.key}\n\n'
 
     log += '------------- BEGIN INCORRECT AGENTS -----------\n\n'
     for agent in incorrect:
-        log += remove_fewshot(agent._build_agent_prompt()) + f'\nCorrect answer: {agent.key}\n\n'
+        log += f'{remove_fewshot(agent._build_agent_prompt())}\nCorrect answer: {agent.key}\n\n'
 
     log += '------------- BEGIN HALTED AGENTS -----------\n\n'
     for agent in halted:
-        log += remove_fewshot(agent._build_agent_prompt()) + f'\nCorrect answer: {agent.key}\n\n'
+        log += f'{remove_fewshot(agent._build_agent_prompt())}\nCorrect answer: {agent.key}\n\n'
 
     return log
 

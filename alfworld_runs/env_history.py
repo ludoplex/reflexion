@@ -9,7 +9,7 @@ class EnvironmentHistory:
         self._is_exhausted: bool = False
 
     def add(self, label: str, value: str) -> None:
-        assert label in ['action', 'observation', 'human_edit']
+        assert label in {'action', 'observation', 'human_edit'}
         self._history += [{
             'label': label,
             'value': value,
@@ -44,7 +44,7 @@ def _get_base_query(base_query: str, start_info: str, memory: List[str]) -> str:
     query = base_query
 
     # add memory if it exists
-    if len(memory) > 0:
+    if memory:
         query += '\n\nYour memory for the task below:'
         for i, m in enumerate(memory):
             query += f'\nTrial {i}:\n{m.strip()}'

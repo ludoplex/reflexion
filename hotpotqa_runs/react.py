@@ -54,13 +54,13 @@ class ReactAgent:
     def step(self) -> None:
         # Think
         self.scratchpad += f'\nThought {self.curr_step}:'
-        self.scratchpad += ' ' + self.prompt_agent()
+        self.scratchpad += f' {self.prompt_agent()}'
         print(self.scratchpad.split('\n')[-1])
 
         # Act
         self.scratchpad += f'\nAction {self.curr_step}:'
         action = self.prompt_agent()
-        self.scratchpad += ' ' + action
+        self.scratchpad += f' {action}'
         print(self.scratchpad.split('\n')[-1])
 
         # Observe
@@ -159,11 +159,10 @@ class ReactReflectAgent(ReactAgent):
 
 ### String Operations ###
 def format_reflections(reflections: List[str]) -> str:
-    if reflections == []:
+    if not reflections:
         return ''
-    else:
-        header = REFLECTION_HEADER
-        return header + 'Reflections:\n- ' + '\n- '.join([r.strip() for r in reflections])
+    header = REFLECTION_HEADER
+    return header + 'Reflections:\n- ' + '\n- '.join([r.strip() for r in reflections])
 
 def format_step(step: str) -> str:
     return step.strip('\n').strip().replace('\n', '')

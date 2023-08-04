@@ -233,15 +233,14 @@ PY_TEST_GENERATION_CHAT_INSTRUCTION = """You are CodexGPT, an AI coding assistan
 
 class PyGenerator(Generator):
     def self_reflection(self, func: str, feedback: str, model: str) -> str:
-        x = generic_generate_self_reflection(
+        return generic_generate_self_reflection(
             func=func,
             feedback=feedback,
             model=model,
             SELF_REFLECTION_CHAT_INSTRUCTION=PY_SELF_REFLECTION_CHAT_INSTRUCTION,
             SELF_REFLECTION_COMPLETION_INSTRUCTION=PY_SELF_REFLECTION_COMPLETION_INSTRUCTION,
-            SELF_REFLECTION_FEW_SHOT=PY_SELF_REFLECTION_FEW_SHOT
+            SELF_REFLECTION_FEW_SHOT=PY_SELF_REFLECTION_FEW_SHOT,
         )
-        return x
 
     def func_impl(
         self,
@@ -254,7 +253,7 @@ class PyGenerator(Generator):
         num_comps: int = 1,
         temperature: float = 0.0,
     ) -> Union[str, List[str]]:
-        x = generic_generate_func_impl(
+        return generic_generate_func_impl(
             func_sig=func_sig,
             model=model,
             strategy=strategy,
@@ -264,13 +263,14 @@ class PyGenerator(Generator):
             num_comps=num_comps,
             temperature=temperature,
             REFLEXION_CHAT_INSTRUCTION=PY_REFLEXION_CHAT_INSTRUCTION,
-            REFLEXION_FEW_SHOT = PY_REFLEXION_FEW_SHOT_ADD,
+            REFLEXION_FEW_SHOT=PY_REFLEXION_FEW_SHOT_ADD,
             SIMPLE_CHAT_INSTRUCTION=PY_SIMPLE_CHAT_INSTRUCTION,
             REFLEXION_COMPLETION_INSTRUCTION=PY_REFLEXION_COMPLETION_INSTRUCTION,
             SIMPLE_COMPLETION_INSTRUCTION=PY_SIMPLE_COMPLETION_INSTRUCTION,
-            fix_body=fix_turbo_response if strategy == "simple" else py_fix_indentation
+            fix_body=fix_turbo_response
+            if strategy == "simple"
+            else py_fix_indentation,
         )
-        return x
 
 
     def internal_tests(self, func_sig: str, model: str, committee_size: int = 1, max_num_tests: int = 5) -> List[str]:
@@ -307,8 +307,7 @@ def handle_first_line_indent(func_body: str) -> str:
 
 def handle_entire_body_indent(func_body: str) -> str:
     split = func_body.splitlines()
-    res = "\n".join(["    " + line for line in split])
-    return res
+    return "\n".join([f"    {line}" for line in split])
 
 def fix_turbo_response(func_body: str) -> str:
     return fix_markdown(remove_unindented_signatures(func_body))
@@ -327,12 +326,12 @@ def remove_unindented_signatures(code: str) -> str:
         if re.match(regex, line):
             signature_found = True
             continue
-        
+
         if signature_found:
             after_signature.append(line)
         else:
             if not line.startswith("    ") and line.strip():
-                line = "    " + line
+                line = f"    {line}"
             before_signature.append(line)
 
     return "\n".join(before_signature + after_signature)
@@ -354,11 +353,12 @@ def py_fix_indentation(func_body: str) -> str:
         try:
             exec(code)
             return f_body
-        except (IndentationError, SyntaxError):
+        except SyntaxError:
             p_func = handle_first_line_indent if cur_state == 0 else handle_entire_body_indent
             return parse_indent_rec(p_func(func_body), cur_state + 1)
         except Exception:
             return f_body
+
     return parse_indent_rec(func_body, 0)
 
 

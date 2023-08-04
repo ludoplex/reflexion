@@ -31,11 +31,7 @@ class PyExecutor(Executor):
 
         state = []
         for test in tests:
-            if test in success_tests:
-                state += [True]
-            else:
-                state += [False]
-
+            state += [True] if test in success_tests else [False]
         state = tuple(state)
 
         feedback = "Tested passed:"
@@ -44,7 +40,7 @@ class PyExecutor(Executor):
         feedback += "\n\nTests failed:"
         for test in failed_tests:
             feedback += f"\n{test}"
-            
+
         return ExecuteResult(is_passing, feedback, state)
 
     def evaluate(self, name: str, func: str, test: str, timeout: int = 5) -> bool:
@@ -80,15 +76,13 @@ def get_output(func: str, assert_statement: str, timeout: int = 5) -> str:
     try:
         exec(f"from typing import *\n{func}", globals())
         func_call = get_call_str(assert_statement)
-        output = function_with_timeout(eval, (func_call, globals()), timeout)
-        return output
+        return function_with_timeout(eval, (func_call, globals()), timeout)
     except TimeoutError:
         return "TIMEOUT"
     except Exception as e:
         return str(e)
 
 if __name__ == "__main__":
-    pass
     # Test the function
     func = "def add(a, b):\n    while True:\n        x = 1\n    return a + b"
     tests = ["assert add(1, 2) == 3", "assert add(1, 2) == 4"]

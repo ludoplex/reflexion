@@ -30,11 +30,7 @@ class State:
         return hash((self.code, self.feedback, self.reflection))
 
     def get_unique_id(self):
-        res = 0
-        for i in range(len(self.state)):
-            res += self.state[i] * (2**i)
-
-        return res
+        return sum(self.state[i] * (2**i) for i in range(len(self.state)))
 
 
 def run_reflexion_ucs(
@@ -113,7 +109,7 @@ def run_reflexion_ucs(
 
                 for new_func in new_funcs:
                     if new_func in already_seen:
-                        debug_print(f"skipping a func because already seen.")
+                        debug_print("skipping a func because already seen.")
                         continue
 
                     already_seen.add(new_func)
@@ -123,7 +119,7 @@ def run_reflexion_ucs(
 
                     if is_passing:
                         # return immediately if solved
-                        return set([(State(new_func, feedback, "", new_state), 0)])
+                        return {(State(new_func, feedback, "", new_state), 0)}
 
                     new_reflection = gen.self_reflection(new_func, feedback, model)
                     reflections.append(new_reflection)

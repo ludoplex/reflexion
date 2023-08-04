@@ -34,11 +34,7 @@ def get_args():
 
     parser.add_argument("--verbose", action='store_true',
                         help="To print live logs")
-    # TODO: implement this
-    # parser.add_argument("--is_resume", action='store_true', help="To resume run")
-    # parser.add_argument("--resume_dir", type=str, help="If resume, the logging directory", default="")
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def strategy_factory(strategy: str):
@@ -94,7 +90,7 @@ pass@k: {args.pass_at_k}
         print(f"Logs will be saved in `{log_dir}`")
 
     # load the dataset
-    print(f'Loading the dataset...')
+    print('Loading the dataset...')
     if args.dataset_path.endswith(".jsonl"):
         dataset = read_jsonl(args.dataset_path)
     elif args.dataset_path.endswith(".jsonl.gz"):

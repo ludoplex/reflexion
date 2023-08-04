@@ -42,16 +42,15 @@ def main(args) -> None:
             os.makedirs(args.run_name)
         logging_dir = args.run_name
 
-        # initialize environment configs
-        env_configs: List[Dict[str, Any]] = []
-        for i in range(args.num_envs):
-            env_configs += [{
+        env_configs: List[Dict[str, Any]] = [
+            {
                 'name': f'env_{i}',
                 'memory': [],
                 'is_success': False,
-                'skip': False
-            }]
-    
+                'skip': False,
+            }
+            for i in range(args.num_envs)
+        ]
     world_log_path: str = os.path.join(logging_dir, 'world.log')
 
     # print start status to user
